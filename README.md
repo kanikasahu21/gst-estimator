@@ -24,7 +24,6 @@ An AI-powered bill estimator that helps users understand the true cost of their 
 
 ---
 
-<<<<<<< HEAD
 ## 🚀 Day 2 Progress
 
 ⚙️ Backend Setup:
