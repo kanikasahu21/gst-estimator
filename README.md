@@ -24,6 +24,7 @@ An AI-powered bill estimator that helps users understand the true cost of their 
 
 ---
 
+<<<<<<< HEAD
 ## 🚀 Day 2 Progress
 
 ⚙️ Backend Setup:
@@ -60,3 +61,9 @@ An AI-powered bill estimator that helps users understand the true cost of their 
 - Sharp (image preprocessing)
 - Tesseract.js (OCR)
 - CORS
+=======
+## 📁 Tech Stack
+- React + Vite
+- Tailwind CSS
+- Framer Motion
+>>>>>>> bd6e3e14043d9a247bb430a839e93f33a2c26814
