@@ -1,6 +1,6 @@
 import express from "express";
 import cors from "cors";
-import fetch from "node-fetch";
+import {fetch} from "undici";
 import dotenv from "dotenv";
 dotenv.config({ path: "../.env" });
 
