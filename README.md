@@ -159,7 +159,5 @@ The GST Estimator project is **completed and fully functional**, combining:
 
 * Rule-based GST logic for speed.
 * AI classification (Gemini API)** for flexibility.
-* Fully responsive.
-* OCR (Tesseract.js) for intelligent menu extraction.
 * **OCR (Tesseract.js)** for intelligent menu extraction.
 * Fully responsive.
