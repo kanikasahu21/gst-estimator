@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import { useRef, useState } from "react";
 import Tesseract from "tesseract.js";
-import backendURL from "../config";
+import backendURL from "@/config"; // ✅ Alias import
 
 const UploadMenu = ({ onToggle, onItemsExtracted }) => {
   const [loading, setLoading] = useState(false);

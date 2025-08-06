@@ -8,4 +8,9 @@ export default defineConfig({
     host: '0.0.0.0',   // Exposes server to your local network
     port: 5173,        // Keep this port or change if needed
   },
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, './src'),
+    },
+  },
 })

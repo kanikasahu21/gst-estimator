@@ -5,7 +5,10 @@ import dotenv from "dotenv";
 dotenv.config({ path: "../.env" });
 
 const app = express();
-app.use(cors());
+app.use(cors({
+  origin: "*", // Or restrict it to: "http://localhost:5173"
+  methods: ["GET", "POST"],
+}));
 app.use(express.json());
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;

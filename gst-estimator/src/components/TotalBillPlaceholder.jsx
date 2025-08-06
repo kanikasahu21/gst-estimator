@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
+import backendURL from "@/config"; // ✅ Changed to alias
 
 const TotalBillPlaceholder = ({ items = [] }) => {
   const [billData, setBillData] = useState({
@@ -19,7 +20,7 @@ const TotalBillPlaceholder = ({ items = [] }) => {
     doc.setFontSize(16);
     doc.text("Bill Summary", doc.internal.pageSize.getWidth() / 2, 15, { align: "center" });
 
-    // Table data (No reasoning, only item details)
+    // Table data
     const tableData = billData.itemsWithGST.map(item => [
       item.name,
       item.quantity,
@@ -28,7 +29,7 @@ const TotalBillPlaceholder = ({ items = [] }) => {
       `Rs. ${parseFloat(item.gstAmount).toFixed(2)}`
     ]);
 
-    // AutoTable with alignment & centered table
+    // AutoTable
     doc.autoTable({
       head: [["Item", "Qty", "Amt", "GST Rate", "GST Amt"]],
       body: tableData,
@@ -36,17 +37,17 @@ const TotalBillPlaceholder = ({ items = [] }) => {
       theme: "grid",
       styles: { halign: "center", valign: "middle" },
       columnStyles: {
-        0: { halign: "left" },  // Item Name
-        1: { halign: "center" }, // Quantity
-        2: { halign: "right" }, // Amount
-        3: { halign: "center" }, // GST Rate
-        4: { halign: "right" } // GST Amount
+        0: { halign: "left" },
+        1: { halign: "center" },
+        2: { halign: "right" },
+        3: { halign: "center" },
+        4: { halign: "right" }
       },
       tableWidth: "auto",
-      margin: { left: (doc.internal.pageSize.getWidth() - 170) / 2 }, // Center table
+      margin: { left: (doc.internal.pageSize.getWidth() - 170) / 2 },
     });
 
-    // Totals (Aligned to right)
+    // Totals
     let finalY = doc.lastAutoTable.finalY + 10;
     doc.setFontSize(12);
     const rightMargin = 14;
@@ -54,7 +55,6 @@ const TotalBillPlaceholder = ({ items = [] }) => {
     doc.text(`Total GST: Rs. ${billData.totalGST.toFixed(2)}`, doc.internal.pageSize.getWidth() - rightMargin, finalY + 7, { align: "right" });
     doc.text(`Total: Rs. ${billData.totalWithGST.toFixed(2)}`, doc.internal.pageSize.getWidth() - rightMargin, finalY + 14, { align: "right" });
 
-    // Save PDF
     doc.save("Bill_Summary.pdf");
   };
 
@@ -68,10 +68,10 @@ const TotalBillPlaceholder = ({ items = [] }) => {
       });
       return;
     }
-    
+
     const fetchBill = async () => {
       try {
-        const res = await fetch(`http://192.168.242.219:5000/calculate-gst`, {
+        const res = await fetch(`${backendURL}/calculate-gst`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ items }),
