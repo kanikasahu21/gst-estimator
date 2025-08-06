@@ -1,4 +1,4 @@
-# GST Estimator
+# AI-Powered GST & Billing Estimator
 
 An AI-powered bill estimator that allows users to upload a menu image or manually enter items and get the total bill amount with applicable GST, calculated using both **rule-based logic** and **AI classification**.
 
