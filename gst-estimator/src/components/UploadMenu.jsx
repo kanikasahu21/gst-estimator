@@ -1,32 +1,59 @@
 import { motion } from "framer-motion";
-import { useState } from "react";
+import { useRef, useState } from "react";
+import Tesseract from "tesseract.js";
+import backendURL from "../config";
 
 const UploadMenu = ({ onToggle, onItemsExtracted }) => {
   const [loading, setLoading] = useState(false);
+  const fileInputRef = useRef(null);
+
+  const handleBoxClick = () => {
+    fileInputRef.current.click();
+  };
 
   const handleFileUpload = async (event) => {
     const file = event.target.files[0];
     if (!file) return;
 
     setLoading(true);
-    const formData = new FormData();
-    formData.append("menuImage", file);
 
     try {
-      const res = await fetch("http://localhost:5000/upload-menu", {
-        method: "POST",
-        body: formData,
-      });
+      // ✅ Frontend OCR
+      const result = await Tesseract.recognize(file, "eng");
+      const rawText = result.data.text;
 
-      const data = await res.json();
-      console.log("✅ OCR Items:", data.items);
+      const lines = rawText.split("\n").filter(line => line.trim() !== "");
+      const parsedItems = lines.map(line => {
+        const match = line.match(/(.*?)(\d+(\.\d{1,2})?)$/);
+        return match
+          ? { name: match[1].trim(), price: parseFloat(match[2]) }
+          : null;
+      }).filter(Boolean);
 
-      // Send items back to BillingSection
-      if (data.items && data.items.length > 0) {
-        onItemsExtracted(data.items);
+      if (parsedItems.length > 0) {
+        onItemsExtracted(parsedItems);
       }
+
     } catch (err) {
-      console.error("❌ Error uploading file:", err);
+      console.error("❌ Error during OCR:", err);
+
+      // 🔄 Backend fallback
+      try {
+        const formData = new FormData();
+        formData.append("menuImage", file);
+
+        const res = await fetch(`${backendURL}/upload-menu`, {
+          method: "POST",
+          body: formData,
+        });
+
+        const data = await res.json();
+        if (data.items && data.items.length > 0) {
+          onItemsExtracted(data.items);
+        }
+      } catch (backendErr) {
+        console.error("❌ Backend OCR failed:", backendErr);
+      }
     } finally {
       setLoading(false);
     }
@@ -51,8 +78,9 @@ const UploadMenu = ({ onToggle, onItemsExtracted }) => {
         </button>
       </div>
 
-      <label
-        htmlFor="file-upload"
+      {/* Upload Box */}
+      <div
+        onClick={handleBoxClick}
         className="flex flex-col items-center justify-center border-2 border-dashed border-blue-400 rounded-xl p-6 cursor-pointer hover:bg-blue-50 transition duration-300"
       >
         {loading ? (
@@ -76,14 +104,16 @@ const UploadMenu = ({ onToggle, onItemsExtracted }) => {
             <span className="text-blue-600 text-sm">Click to upload or drag file</span>
           </>
         )}
-        <input
-          type="file"
-          id="file-upload"
-          className="hidden"
-          accept="image/*"
-          onChange={handleFileUpload}
-        />
-      </label>
+      </div>
+
+      {/* Hidden file input */}
+      <input
+        type="file"
+        ref={fileInputRef}
+        style={{ display: "none" }}
+        accept="image/*"
+        onChange={handleFileUpload}
+      />
     </motion.section>
   );
 };

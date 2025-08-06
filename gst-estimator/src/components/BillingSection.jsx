@@ -1,15 +1,27 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import ManualEntryForm from "./ManualEntryForm";
 import ItemList from "./ItemListPlaceholder";
 import TotalBillPlaceholder from "./TotalBillPlaceholder";
 import UploadMenu from "./UploadMenu";
 
-export default function BillingSection() {
+export default function BillingSection({ ocrItems = [] }) {
   const [items, setItems] = useState([]);
   const [showManualEntry, setShowManualEntry] = useState(false);
-  const [editingIndex, setEditingIndex] = useState(null); // ✅ track editing
+  const [editingIndex, setEditingIndex] = useState(null);
 
-  // Add or Update item manually
+  // ✅ When OCR items come from App.jsx, add them automatically
+  useEffect(() => {
+    if (ocrItems.length > 0) {
+      const itemsWithQuantity = ocrItems.map((item) => ({
+        ...item,
+        name: item.name.replace(/[-₹]/g, "").trim(),
+        quantity: 1
+      }));
+      setItems((prev) => [...prev, ...itemsWithQuantity]);
+    }
+  }, [ocrItems]);
+
+  // ✅ Add or update item manually
   const handleAddOrUpdateItem = (item) => {
     if (editingIndex !== null) {
       const updatedItems = [...items];
@@ -21,37 +33,36 @@ export default function BillingSection() {
     }
   };
 
-  // ✅ Add items from OCR
-  const handleItemsExtracted = (ocrItems) => {
-  const itemsWithQuantity = ocrItems.map(item => ({
-    ...item,
-    name: item.name.replace(/[-₹]/g, "").trim(), // remove dash & rupee sign
-    quantity: 1
-  }));
-  setItems(prev => [...prev, ...itemsWithQuantity]);
-};
+  // ✅ Add items directly from UploadMenu OCR
+  const handleItemsExtracted = (extractedItems) => {
+    const itemsWithQuantity = extractedItems.map((item) => ({
+      ...item,
+      name: item.name.replace(/[-₹]/g, "").trim(),
+      quantity: 1
+    }));
+    setItems((prev) => [...prev, ...itemsWithQuantity]);
+  };
 
-
-  // Delete item
+  // ✅ Delete item
   const handleDeleteItem = (index) => {
     setItems(items.filter((_, i) => i !== index));
     if (editingIndex === index) setEditingIndex(null);
   };
 
-  // Update quantity (+/-)
+  // ✅ Update quantity
   const handleUpdateQuantity = (index, change) => {
     const updatedItems = [...items];
     updatedItems[index].quantity = Math.max(0, updatedItems[index].quantity + change);
     setItems(updatedItems);
   };
 
-  // Toggle between modes
+  // ✅ Toggle between Manual & Upload modes
   const handleToggleMode = () => {
-    setShowManualEntry(prev => !prev);
+    setShowManualEntry((prev) => !prev);
     setEditingIndex(null);
   };
 
-  // Edit item
+  // ✅ Edit item
   const handleEditItem = (index) => {
     setEditingIndex(index);
     if (!showManualEntry) setShowManualEntry(true);
@@ -68,7 +79,7 @@ export default function BillingSection() {
       ) : (
         <UploadMenu
           onToggle={handleToggleMode}
-          onItemsExtracted={handleItemsExtracted} // ✅ pass handler
+          onItemsExtracted={handleItemsExtracted}
         />
       )}
 
@@ -78,6 +89,7 @@ export default function BillingSection() {
         onUpdateQuantity={handleUpdateQuantity}
         onEditItem={handleEditItem}
       />
+
       <TotalBillPlaceholder items={items} />
     </div>
   );
